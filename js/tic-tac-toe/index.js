@@ -1,10 +1,14 @@
 let turn = "x";
-let symbols = [["", "", ""], ["", "", ""], ["", "", ""]];
+let symbols = [
+  ["", "", ""],
+  ["", "", ""],
+  ["", "", ""],
+];
 
 const board = document.querySelector(".board");
 const tiles = Array.from(document.querySelectorAll(".tile"));
 
-board.addEventListener("click", ({ target }) => {
+board.addEventListener("mouseup", ({ target }) => {
   const classes = Array.from(target.classList);
   if (classes.includes("tile") && classes.length !== 1) return;
 
@@ -12,22 +16,57 @@ board.addEventListener("click", ({ target }) => {
 
   target.classList.add(`tile-${turn}`);
   symbols[idx % 3][Math.floor(idx / 3)] = turn;
-  turn = turn === "x" ? "o" : "x";
-
-  displayTurn(turn);
-
   checkWin();
+
+  turn = turn === "x" ? "o" : "x";
+  displayTurn(turn);
 });
 
 function displayTurn(turn) {
-  // 1. zmień text elementu h1 z klasą "turn" zależnie od tego, czyja jest aktualnie tura
+  document.querySelector(".turn").innerHTML = `${turn.toUpperCase()} turn`;
+}
+
+function reset() {
+  displayTurn((turn = "x"));
+  symbols = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
+  ];
+  tiles.forEach((tile) => (tile.className = "tile"));
+}
+document.querySelector(".reset").addEventListener("click", reset);
+
+function declareWin() {
+  alert(`${turn.toUpperCase()} won!`);
+  reset();
 }
 
 function checkWin() {
-  // 2. sprawdź czy któryś z graczy wygrał pojedynek - jeśli tak wyświetla komunikat (możesz użyć np. funkcji "alert(...)")
-}
+  const columnWin = symbols.some(
+    (column) => column[0] === turn && column[1] === turn && column[2] === turn
+  );
+  if (columnWin) declareWin();
 
-// 3. dodaj listener pod przycisk z napisaem "reset" tak, aby po jego kliknięciu wywołać funkcję reset
-function reset() {
-  // 4. zresetuj stan gry
+  let rowWin;
+  for (i = 0; i < 3; i++) {
+    if (
+      symbols[0][i] === turn &&
+      symbols[1][i] === turn &&
+      symbols[2][i] === turn
+    ) {
+      rowWin = true;
+      break;
+    }
+  }
+  if (rowWin) declareWin();
+
+  const diagonalWin =
+    (symbols[0][0] === turn &&
+      symbols[1][1] === turn &&
+      symbols[2][2] === turn) ||
+    (symbols[0][2] === turn &&
+      symbols[1][1] === turn &&
+      symbols[2][0] === turn);
+  if (diagonalWin) declareWin();
 }
