@@ -43,17 +43,37 @@ pokemonTypesColorsStyleElement.appendChild(
 );
 document.querySelector("body").appendChild(pokemonTypesColorsStyleElement);
 
+const filterCheckboxes = document.querySelectorAll(
+  ".filters__form input[type='checkbox']"
+);
+const filterName = document.querySelector(
+  ".filters__form input[name='pokemon-name']"
+);
+
+// Rerender pokemons after filter change
+filterCheckboxes.forEach((element) =>
+  element.addEventListener("change", renderFilteredPokemons)
+);
+filterName.addEventListener("keyup", renderFilteredPokemons);
+
 function setFilterType({ target: { className: tagClass } }) {
   const type = tagClass.substring(6);
-  const filterCheckboxes = document.querySelectorAll(
-    ".filters__form input[type='checkbox']"
-  );
   filterCheckboxes.forEach((filterCheckbox) => {
     filterCheckbox.checked = filterCheckbox.name == type;
   });
   renderFilteredPokemons();
   window.scroll({ top: 0, behavior: "smooth" });
 }
+
+document
+  .querySelector(".filters__form button")
+  .addEventListener("click", () => {
+    filterCheckboxes.forEach((filterCheckbox) => {
+      filterCheckbox.checked = false;
+    });
+    filterName.value = "";
+    renderFilteredPokemons();
+  });
 
 // tutaj złapiemy sekcję, do której będziemy dodawać pokemony
 const pokemonsContainer = document.querySelector(".pokemons");
@@ -119,7 +139,7 @@ function filterPokemons(
 
   const filterTypes = Object.keys(filterTypesObject);
   if (filterTypes.length) {
-    filteredPokemons = pokemons.filter((pokemon) =>
+    filteredPokemons = filteredPokemons.filter((pokemon) =>
       pokemon.types.some((pokemonType) =>
         filterTypes.find((filterType) => pokemonType == filterType)
       )
@@ -127,7 +147,7 @@ function filterPokemons(
   }
 
   if (filterName) {
-    filteredPokemons = pokemons.filter((pokemon) =>
+    filteredPokemons = filteredPokemons.filter((pokemon) =>
       pokemon.name.toLowerCase().includes(filterName.toLowerCase())
     );
   }
@@ -148,7 +168,6 @@ renderFilteredPokemons();
 function submitForm(event) {
   event.preventDefault();
   // następnie wykonaj uzupełnioną metodę z tablicą pokemons, aby sprawdzić czy wszystko działa
-  renderFilteredPokemons();
 }
 form.addEventListener("submit", submitForm);
 
